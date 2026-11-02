@@ -173,3 +173,27 @@ describe('duplicate detection', () => {
     expect(marked.map((m) => m.duplicate)).toEqual([true, false, false])
   })
 })
+
+describe('bundled sample statement (public/ornek-ekstre.csv)', () => {
+  it('is detected and parsed end to end', async () => {
+    const { readFile } = await import('node:fs/promises')
+    const bytes = new Uint8Array(await readFile(new URL('../../../public/ornek-ekstre.csv', import.meta.url)))
+    const decoded = decodeBankFile(bytes)
+    expect(decoded.encoding).toBe('windows-1254')
+    const delimiter = detectDelimiter(decoded.text)
+    expect(delimiter).toBe(';')
+    const rows = parseCsv(decoded.text, delimiter)
+    const headerIndex = detectHeaderRow(rows)
+    expect(rows[headerIndex]?.[1]).toBe('Açıklama')
+    const data = rows.slice(headerIndex + 1)
+    const mapping = guessMapping(rows[headerIndex] ?? [], data)
+    expect(mapping.amountMode).toBe('split')
+    const formats = guessFormats(data, mapping)
+    expect(formats).toEqual({ dateFormat: 'dd.MM.yyyy', decimalFormat: 'tr' })
+    const built = buildRows(data, { mapping, dateFormat: 'dd.MM.yyyy', decimalFormat: 'tr' })
+    expect(built.rows).toHaveLength(30)
+    // The closing balance line has no date and is reported, not imported.
+    expect(built.errors.map((e) => e.reason)).toEqual(['date'])
+    expect(built.rows[0]).toMatchObject({ date: '2026-10-01', amount: 105000, description: 'EFT MAAŞ ÖDEMESİ ANADOLU YAZILIM A.Ş.' })
+  })
+})

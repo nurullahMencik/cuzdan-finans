@@ -32,6 +32,8 @@ const SOURCES: { [K in TableKey]: () => Promise<Tables[K]> } = {
   imports: () => db.imports.toArray(),
 }
 
+const TYPE_ORDER: Record<Account['type'], number> = { checking: 0, credit: 1, fx: 2 }
+
 const EMPTY: Tables = { accounts: [], transactions: [], rules: [], budgets: [], decisions: [], fxRates: [], imports: [] }
 
 /**
@@ -71,14 +73,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const rateTable = useMemo(() => toRateTable(tables.fxRates), [tables.fxRates])
   const txTry = useMemo(() => withTry(tables.transactions, rateTable), [tables.transactions, rateTable])
   const recurring = useMemo(() => detectRecurring(tables.transactions, today), [tables.transactions, today])
-  const accountsById = useMemo(() => new Map(tables.accounts.map((a) => [a.id, a])), [tables.accounts])
+  const accounts = useMemo(
+    () => [...tables.accounts].sort((a, b) => TYPE_ORDER[a.type] - TYPE_ORDER[b.type] || a.createdAt.localeCompare(b.createdAt)),
+    [tables.accounts],
+  )
+  const accountsById = useMemo(() => new Map(accounts.map((a) => [a.id, a])), [accounts])
   const decisions = useMemo(() => new Map(tables.decisions.map((d) => [d.key, d])), [tables.decisions])
 
   const value = useMemo<AppData>(
     () => ({
       ready,
       today,
-      accounts: tables.accounts,
+      accounts,
       accountsById,
       transactions: tables.transactions,
       txTry,
@@ -90,7 +96,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       imports: tables.imports,
       recurring,
     }),
-    [ready, today, tables, accountsById, txTry, rules, decisions, rateTable, recurring],
+    [ready, today, tables, accounts, accountsById, txTry, rules, decisions, rateTable, recurring],
   )
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>

@@ -234,6 +234,7 @@ export const en: Messages = {
   'subs.lapsed': 'May have stopped',
   'subs.lapsedHint': 'No payment arrived when expected; it may have been cancelled.',
   'subs.overdue': 'Overdue',
+  'subs.expectedPassed': 'Expected date has passed',
   'subs.history': '{count} payment · first {first}|{count} payments · first {first}',
   'subs.skipped': '{count} period skipped|{count} periods skipped',
   'subs.empty.suggested': 'Nothing waiting for review. New suggestions appear here as you import statements.',

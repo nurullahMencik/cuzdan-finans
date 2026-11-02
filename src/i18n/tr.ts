@@ -238,6 +238,7 @@ export const tr = {
   'subs.lapsed': 'Durmuş olabilir',
   'subs.lapsedHint': 'Beklenen tarihte ödeme görülmedi; iptal edilmiş olabilir.',
   'subs.overdue': 'Gecikti',
+  'subs.expectedPassed': 'Beklenen tarih geçti',
   'subs.history': '{count} ödeme · ilk {first}',
   'subs.skipped': '{count} dönem atlandı',
   'subs.empty.suggested': 'Onay bekleyen tespit yok. Yeni ekstreler içe aktardıkça öneriler burada görünür.',
