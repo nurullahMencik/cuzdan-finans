@@ -407,7 +407,6 @@ function MappingStep({
     })
   }
 
-  const errorText = (reason: string) => t(`import.error.${reason as 'date'}`)
   // Problems first, so a broken row is never hidden below the fold.
   const shown = [...(preview ?? []).filter((p) => p.status !== 'new'), ...(preview ?? []).filter((p) => p.status === 'new')].slice(0, 12)
 
@@ -540,7 +539,7 @@ function MappingStep({
                           <Badge tone="danger">{t('import.status.error')}</Badge>
                         </td>
                         <td colSpan={4} className="truncate px-2 py-2 pr-5 text-ink-3">
-                          {errorText(item.reason)} · <span className="font-mono text-xs">{item.raw}</span>
+                          {t(`import.error.${item.reason}`)} · <span className="font-mono text-xs">{item.raw}</span>
                         </td>
                       </tr>
                     ) : (

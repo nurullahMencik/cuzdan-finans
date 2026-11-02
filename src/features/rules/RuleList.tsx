@@ -118,7 +118,6 @@ export function RuleList({ rules, matchCounts, selectedId, onReorder, onEdit, on
                 'card relative flex items-center gap-2 py-2.5 pr-2 pl-1.5 sm:gap-3 sm:pr-3',
                 dragging ? 'z-10 shadow-pop ring-2 ring-accent' : drag && 'transition-transform',
                 selectedId === id && !dragging && 'ring-2 ring-accent/60',
-                !rule.enabled && 'opacity-60',
               )}
             >
               <button
@@ -140,7 +139,7 @@ export function RuleList({ rules, matchCounts, selectedId, onReorder, onEdit, on
               </button>
               <span className="tnum w-6 shrink-0 text-center text-xs font-bold text-ink-3">{index + 1}</span>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-mono text-[0.8125rem] text-ink" title={describe(rule)}>
+                <p className={cx('truncate font-mono text-[0.8125rem]', rule.enabled ? 'text-ink' : 'text-ink-3 line-through')} title={describe(rule)}>
                   {describe(rule)}
                 </p>
                 <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-3">
@@ -148,6 +147,7 @@ export function RuleList({ rules, matchCounts, selectedId, onReorder, onEdit, on
                   <CategoryLabel id={rule.categoryId} className="font-semibold text-ink-2" />
                   <span>· {t('rules.matchCount', { count })}</span>
                   <Badge tone={rule.origin === 'learned' ? 'accent' : 'neutral'}>{t(`rules.origin.${rule.origin}`)}</Badge>
+                  {!rule.enabled && <Badge tone="warning">{t('rules.disabled')}</Badge>}
                 </p>
               </div>
               <Switch checked={rule.enabled} label={`${t('rules.enabled')}: ${describe(rule)}`} onChange={() => onToggle(rule)} />

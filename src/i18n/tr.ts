@@ -289,6 +289,7 @@ export const tr = {
   'rules.dragHandle': 'Taşı: {rule}. Sırayı değiştirmek için yukarı/aşağı ok tuşlarını kullanın.',
   'rules.moved': '{rule}, {position}. sıraya taşındı',
   'rules.enabled': 'Etkin',
+  'rules.disabled': 'Devre dışı',
   'rules.origin.default': 'Hazır',
   'rules.origin.learned': 'Öğrenildi',
   'rules.origin.user': 'Özel',

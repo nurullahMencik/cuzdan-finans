@@ -110,7 +110,7 @@ function SeriesRow({ series: s, tab, amountTry, today }: { series: RecurringSeri
   const confidenceTone = s.confidence >= 0.8 ? 'bg-accent' : s.confidence >= 0.65 ? 'bg-ink-3' : 'bg-warning'
 
   return (
-    <li className={cx('card grid gap-x-6 gap-y-3 p-4 sm:p-5 md:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))_auto] md:items-center', s.status === 'lapsed' && 'opacity-80')}>
+    <li className={cx('card grid gap-x-6 gap-y-3 p-4 sm:p-5 md:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))_auto] md:items-center')}>
       <div className="flex min-w-0 items-center gap-3">
         <span
           aria-hidden

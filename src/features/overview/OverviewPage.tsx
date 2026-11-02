@@ -26,16 +26,18 @@ const DONUT_SLICES = 5
 export function OverviewPage() {
   const { t, f } = useI18n()
   const { ready, txTry, transactions, budgets, recurring, decisions, today, rateTable } = useData()
-  const { month, setMonth, isCurrent, throughDay } = useMonth()
+  const { month, setMonth, isCurrent, throughDay, currentMonth } = useMonth()
   const prevMonth = addMonthsToMonth(month, -1)
 
   const kpis = useMemo(() => {
     const current = totalsFor(txTry, month)
     // A month in progress is compared with the same days of last month.
     const previous = totalsFor(txTry, prevMonth, isCurrent ? throughDay : undefined)
-    const series = monthlySeries(txTry, monthRange(month, 12))
+    // The 12-month window stays anchored to today so clicking a bar does not shift the chart.
+    const windowEnd = month >= addMonthsToMonth(currentMonth, -11) ? currentMonth : month
+    const series = monthlySeries(txTry, monthRange(windowEnd, 12))
     return { current, previous, series }
-  }, [txTry, month, prevMonth, isCurrent, throughDay])
+  }, [txTry, month, prevMonth, isCurrent, throughDay, currentMonth])
 
   const categories = useMemo(() => expenseByCategory(txTry, month), [txTry, month])
 
@@ -150,7 +152,7 @@ export function OverviewPage() {
           value={f.money(current.income, 'TRY', { decimals: 0 })}
           delta={pctDelta(current.income, previous.income, true)}
           noDeltaText={t('kpi.noComparison')}
-          trend={series.map((s) => s.income)}
+          trend={series.filter((s) => s.month <= month).map((s) => s.income)}
           trendLabel={`${t('kpi.income')} · ${t('kpi.trend')}`}
         />
         <KpiTile
@@ -158,7 +160,7 @@ export function OverviewPage() {
           value={f.money(current.expense, 'TRY', { decimals: 0 })}
           delta={pctDelta(current.expense, previous.expense, false)}
           noDeltaText={t('kpi.noComparison')}
-          trend={series.map((s) => s.expense)}
+          trend={series.filter((s) => s.month <= month).map((s) => s.expense)}
           trendLabel={`${t('kpi.expense')} · ${t('kpi.trend')}`}
         />
         <KpiTile
@@ -166,7 +168,7 @@ export function OverviewPage() {
           value={f.money(current.net, 'TRY', { decimals: 0 })}
           delta={netDelta}
           noDeltaText={t('kpi.noComparison')}
-          trend={series.map((s) => s.net)}
+          trend={series.filter((s) => s.month <= month).map((s) => s.net)}
           trendLabel={`${t('kpi.net')} · ${t('kpi.trend')}`}
         />
         <KpiTile
@@ -174,7 +176,7 @@ export function OverviewPage() {
           value={current.savingsRate === null ? '–' : f.percent(current.savingsRate, { decimals: 1 })}
           delta={rateDelta}
           noDeltaText={t('kpi.noComparison')}
-          trend={series.map((s) => s.savingsRate ?? 0)}
+          trend={series.filter((s) => s.month <= month).map((s) => s.savingsRate ?? 0)}
           trendLabel={`${t('kpi.savingsRate')} · ${t('kpi.trend')}`}
         />
       </div>

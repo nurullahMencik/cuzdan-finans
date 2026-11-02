@@ -285,6 +285,7 @@ export const en: Messages = {
   'rules.dragHandle': 'Move: {rule}. Use the up and down arrow keys to change its position.',
   'rules.moved': '{rule} moved to position {position}',
   'rules.enabled': 'Enabled',
+  'rules.disabled': 'Disabled',
   'rules.origin.default': 'Starter',
   'rules.origin.learned': 'Learned',
   'rules.origin.user': 'Custom',
