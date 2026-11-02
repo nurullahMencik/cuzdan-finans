@@ -1,5 +1,5 @@
 import { liveQuery } from 'dexie'
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { startTransition, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { db } from '../db/db'
 import { ensureSeeded } from '../db/repo'
 import type { Account, Budget, FxRate, ImportRecord, Rule, SubscriptionDecision, Transaction } from '../domain/types'
@@ -54,8 +54,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
       for (const key of Object.keys(SOURCES) as TableKey[]) {
         const sub = liveQuery<Tables[typeof key]>(() => SOURCES[key]()).subscribe({
           next: (rows) => {
-            setTables((prev) => ({ ...prev, [key]: rows }))
-            setLoaded((prev) => (prev.has(key) ? prev : new Set(prev).add(key)))
+            // A transition lets React render the data-heavy pages in interruptible slices.
+            startTransition(() => {
+              setTables((prev) => ({ ...prev, [key]: rows }))
+              setLoaded((prev) => (prev.has(key) ? prev : new Set(prev).add(key)))
+            })
           },
           error: (error: unknown) => console.error(`liveQuery(${key}) failed`, error),
         })

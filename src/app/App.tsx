@@ -18,7 +18,7 @@ const router = createBrowserRouter(
       ErrorBoundary: ErrorPage,
       HydrateFallback: () => null,
       children: [
-        { index: true, Component: OverviewPage },
+        { index: true, Component: OverviewPage, handle: { selfLoading: true } },
         { path: 'transactions', lazy: { Component: async () => (await import('../features/transactions/TransactionsPage')).TransactionsPage } },
         { path: 'budgets', lazy: { Component: async () => (await import('../features/budgets/BudgetsPage')).BudgetsPage } },
         { path: 'subscriptions', lazy: { Component: async () => (await import('../features/subscriptions/SubscriptionsPage')).SubscriptionsPage } },

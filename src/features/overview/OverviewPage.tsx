@@ -25,7 +25,7 @@ const DONUT_SLICES = 5
 
 export function OverviewPage() {
   const { t, f } = useI18n()
-  const { txTry, transactions, budgets, recurring, decisions, today, rateTable } = useData()
+  const { ready, txTry, transactions, budgets, recurring, decisions, today, rateTable } = useData()
   const { month, setMonth, isCurrent, throughDay } = useMonth()
   const prevMonth = addMonthsToMonth(month, -1)
 
@@ -88,6 +88,20 @@ export function OverviewPage() {
     [recurring, decisions, today, rateTable],
   )
 
+  const monthName = f.month(month)
+  const subtitle = isCurrent
+    ? `${t('overview.subtitle', { month: monthName })} · ${t('month.partial', { day: throughDay, month: f.monthShort(month) })}`
+    : t('overview.subtitle', { month: monthName })
+  const header = <PageHeader title={t('overview.title')} subtitle={subtitle} actions={<MonthSwitcher />} />
+
+  if (!ready) {
+    return (
+      <>
+        {header}
+        <OverviewSkeleton />
+      </>
+    )
+  }
   if (transactions.length === 0) return <EmptyOverview />
 
   const { current, previous, series } = kpis
@@ -125,14 +139,10 @@ export function OverviewPage() {
         }
 
   const cashflow = series.map((m) => ({ ...m, label: f.monthShort(m.month) }))
-  const monthName = f.month(month)
-  const subtitle = isCurrent
-    ? `${t('overview.subtitle', { month: monthName })} · ${t('month.partial', { day: throughDay, month: f.monthShort(month) })}`
-    : t('overview.subtitle', { month: monthName })
 
   return (
     <>
-      <PageHeader title={t('overview.title')} subtitle={subtitle} actions={<MonthSwitcher />} />
+      {header}
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <KpiTile
@@ -269,6 +279,24 @@ export function OverviewPage() {
       <BudgetAlerts rows={budgetRows} className="mt-4" />
 
     </>
+  )
+}
+
+/** Same footprint as the loaded page, so nothing shifts when data arrives. */
+function OverviewSkeleton() {
+  const { t } = useI18n()
+  return (
+    <div role="status" aria-label={t('app.loading')}>
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="card h-[8.25rem] animate-pulse sm:h-[8.75rem]" />
+        ))}
+      </div>
+      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+        <div className="card h-[27rem] animate-pulse lg:col-span-2" />
+        <div className="card h-[27rem] animate-pulse" />
+      </div>
+    </div>
   )
 }
 

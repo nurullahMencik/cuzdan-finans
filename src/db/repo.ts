@@ -1,42 +1,44 @@
 import type { Account, Budget, CategoryId, FxRate, ImportRecord, Rule, SubscriptionStatus, Transaction } from '../domain/types'
 import { recategorizeAll, sortRules } from '../lib/rules'
-import { db } from './db'
-
-const SEED_KEY = 'seededAt'
+import { db, SEED_KEY } from './db'
 
 export function newId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID()}`
 }
 
-async function loadSampleData() {
-  const { generateSampleData } = await import('../lib/seed/generate')
-  return generateSampleData(new Date())
+function seedInWorker(now: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(new URL('./seed.worker.ts', import.meta.url), { type: 'module' })
+    worker.addEventListener('message', (event: MessageEvent<{ ok: boolean; error?: string }>) => {
+      worker.terminate()
+      if (event.data.ok) resolve()
+      else reject(new Error(event.data.error))
+    })
+    worker.addEventListener('error', (event) => {
+      worker.terminate()
+      reject(new Error(event.message))
+    })
+    worker.postMessage({ now })
+  })
+}
+
+async function seedOnMainThread(now: number): Promise<void> {
+  const { writeSampleData } = await import('./seedData')
+  await writeSampleData(new Date(now))
 }
 
 let seeding: Promise<void> | null = null
 
-/** Seeds the sample data on the very first visit (once per browser). */
+/** Seeds the sample data on the very first visit (once per browser), off the UI thread when possible. */
 export function ensureSeeded(): Promise<void> {
   seeding ??= (async () => {
-    const seeded = await db.meta.get(SEED_KEY)
-    if (seeded) return
-    const accounts = await db.accounts.count()
-    if (accounts > 0) return
-    await writeSampleData()
+    if (await db.meta.get(SEED_KEY)) return
+    if ((await db.accounts.count()) > 0) return
+    const now = Date.now()
+    if (typeof Worker === 'undefined') return seedOnMainThread(now)
+    await seedInWorker(now).catch(() => seedOnMainThread(now))
   })()
   return seeding
-}
-
-async function writeSampleData(): Promise<void> {
-  const data = await loadSampleData()
-  await db.transaction('rw', [db.accounts, db.transactions, db.rules, db.budgets, db.fxRates, db.meta], async () => {
-    await db.accounts.bulkPut(data.accounts)
-    await db.transactions.bulkPut(data.transactions)
-    await db.rules.bulkPut(data.rules)
-    await db.budgets.bulkPut(data.budgets)
-    await db.fxRates.bulkPut(data.fxRates)
-    await db.meta.put({ key: SEED_KEY, value: new Date().toISOString() })
-  })
 }
 
 const ALL_TABLES = () => [
@@ -52,16 +54,8 @@ const ALL_TABLES = () => [
 
 /** Replaces everything with freshly generated sample data for today. */
 export async function resetToSampleData(): Promise<void> {
-  const data = await loadSampleData()
-  await db.transaction('rw', ALL_TABLES(), async () => {
-    await Promise.all(ALL_TABLES().map((t) => t.clear()))
-    await db.accounts.bulkPut(data.accounts)
-    await db.transactions.bulkPut(data.transactions)
-    await db.rules.bulkPut(data.rules)
-    await db.budgets.bulkPut(data.budgets)
-    await db.fxRates.bulkPut(data.fxRates)
-    await db.meta.put({ key: SEED_KEY, value: new Date().toISOString() })
-  })
+  const { writeSampleData } = await import('./seedData')
+  await writeSampleData(new Date(), { clearFirst: true })
 }
 
 /** Deletes all data but remembers that the user opted out of sample data. */

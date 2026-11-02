@@ -1,6 +1,6 @@
 import { Lock, Menu, Monitor, Moon, Sun, X } from 'lucide-react'
 import { Suspense, useEffect, useRef, type ReactNode } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router'
+import { NavLink, Outlet, useLocation, useMatches } from 'react-router'
 import { cx } from '../components/classes'
 import { Wordmark } from '../components/Logo'
 import { IconButton, Segmented } from '../components/ui'
@@ -48,7 +48,9 @@ export function AppShell() {
 function Gate({ children }: { children: ReactNode }) {
   const { t } = useI18n()
   const { ready } = useData()
-  if (!ready) {
+  // Routes flagged `selfLoading` render their own skeleton (the landing page paints its header immediately).
+  const selfLoading = useMatches().some((m) => (m.handle as { selfLoading?: boolean } | undefined)?.selfLoading)
+  if (!ready && !selfLoading) {
     return (
       <p role="status" className="py-24 text-center text-sm text-ink-3">
         {t('app.loading')}

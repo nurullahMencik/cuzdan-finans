@@ -36,7 +36,7 @@ export function Tabs<T extends string>({
   }
   return (
     <div>
-      <div role="tablist" aria-label={label} className="flex gap-1 border-b border-line">
+      <div role="tablist" aria-label={label} className="flex gap-0 border-b border-line sm:gap-1">
         {tabs.map((tab, i) => {
           const selected = tab.value === value
           return (
@@ -54,7 +54,7 @@ export function Tabs<T extends string>({
               onClick={() => onChange(tab.value)}
               onKeyDown={(e) => onKeyDown(e, i)}
               className={cx(
-                '-mb-px flex items-center gap-2 border-b-2 px-3 pt-1 pb-2.5 text-sm font-semibold transition-colors',
+                '-mb-px flex items-center gap-1.5 border-b-2 px-2 pt-1 pb-2.5 text-sm font-semibold whitespace-nowrap transition-colors sm:gap-2 sm:px-3',
                 selected ? 'border-accent text-ink' : 'border-transparent text-ink-3 hover:text-ink',
               )}
             >

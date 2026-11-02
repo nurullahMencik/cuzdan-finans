@@ -21,6 +21,9 @@ export type CuzdanDatabase = Dexie & {
   meta: EntityTable<MetaEntry, 'key'>
 }
 
+/** Meta key set once the sample data has been written (or the user cleared everything). */
+export const SEED_KEY = 'seededAt'
+
 export const db = new Dexie('cuzdan-finans') as CuzdanDatabase
 
 db.version(1).stores({
