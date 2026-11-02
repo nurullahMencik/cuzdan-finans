@@ -1,0 +1,57 @@
+{
+  "name": "cuzdan-finans",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local-first personal finance dashboard: bank statement import, auto-categorization, budgets and subscription detection.",
+  "license": "MIT",
+  "author": "Nurullah Mencik",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite --port 5303 --strictPort",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --port 5303 --strictPort",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc -b --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "playwright test",
+    "screenshots": "playwright test --config playwright.screenshots.config.ts",
+    "sample:csv": "node scripts/make-sample-csv.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/manrope": "^5.3.0",
+    "@tanstack/react-table": "^9.3.1",
+    "@tanstack/react-virtual": "^3.14.25",
+    "date-fns": "^4.4.0",
+    "dexie": "^4.4.7",
+    "lucide-react": "^1.66.0",
+    "papaparse": "^5.7.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router": "^8.5.1",
+    "recharts": "^3.10.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^22.20.5",
+    "@types/papaparse": "^5.5.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.14.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}
